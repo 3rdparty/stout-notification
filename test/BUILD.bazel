@@ -1,0 +1,10 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+cc_test(
+    name = "notification",
+    srcs = ["notification.cc"],
+    deps = [
+        "//:notification",
+        "@gtest//:gtest_main",
+    ],
+)
