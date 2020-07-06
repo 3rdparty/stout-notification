@@ -1,4 +1,5 @@
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -44,4 +45,41 @@ TEST(NotificationTest, NotifyBeforeWatch)
     .Times(1);
 
   notification.Watch(mock.AsStdFunction());
+}
+
+
+TEST(NotificationTest, WaitBeforeNotify)
+{
+  Notification<string> notification;
+
+  MockFunction<void(string)> mock;
+
+  EXPECT_CALL(mock, Call(_))
+    .Times(0);
+
+  std::thread thread([&]() {
+    mock.Call(notification.Wait());
+  });
+
+  EXPECT_CALL(mock, Call("hello world"))
+    .Times(1);
+
+  notification.Notify("hello world");
+
+  thread.join();
+}
+
+
+TEST(NotificationTest, NotifyBeforeWait)
+{
+  Notification<string> notification;
+
+  notification.Notify("hello world");
+
+  MockFunction<void(string)> mock;
+
+  EXPECT_CALL(mock, Call("hello world"))
+    .Times(1);
+
+  mock.Call(notification.Wait());
 }

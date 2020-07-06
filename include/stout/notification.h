@@ -20,20 +20,20 @@ public:
     // deletes this instance and thus the mutex.
     std::vector<std::function<void(T)>> functions;
 
-    std::call_once(
-        notify_,
-        [this, &t, &functions]() {
-          // Copy 't' rather than 'std::move' so that we can use 't'
-          // when invoking the functions in case one of the callbacks
-          // deletes this instance.
-          t_ = t;
+    mutex_.lock();
+    
+    // Copy 't' rather than 'std::move' so that we can use 't' when
+    // invoking the functions in case one of the callbacks deletes
+    // this instance.
+    t_ = t;
 
-          notified_.store(true, std::memory_order_release);
+    notified_.store(true, std::memory_order_release);
 
-          mutex_.lock();
-          functions = std::move(functions_);
-          mutex_.unlock();
-        });
+    condition_.notify_all();
+
+    functions = std::move(functions_);
+
+    mutex_.unlock();
 
     for (auto&& f : functions) {
       // See comment above for why we use 't' instead of 't_'.
@@ -57,8 +57,20 @@ public:
     }
   }
 
+  T Wait()
+  {
+    if (!notified_.load(std::memory_order_acquire)) {
+      std::unique_lock<std::mutex> lock(mutex_);
+      while (!notified_.load(std::memory_order_acquire)) {
+        condition_.wait(lock);
+      }
+    }
+    return t_;
+  }
+
 private:
   std::mutex mutex_;
+  std::condition_variable condition_;
   T t_;
   std::once_flag notify_;
   std::atomic<bool> notified_;
