@@ -15,3 +15,15 @@ notification.Watch([](const std::string& s) {
 
 notification.Notify("hello world");
 ```
+
+Block the current thread (***bewarned***) for the notification:
+
+```cpp
+stout::Notification<std::string> notification;
+
+// Thread 1:
+auto s = notification.Wait();
+
+// Thread 2:
+notification.Notify("hello world");
+```
