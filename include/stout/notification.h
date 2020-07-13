@@ -35,9 +35,13 @@ public:
 
     mutex_.unlock();
 
-    for (auto&& f : functions) {
+    // NOTE: explicit design goal to execute handlers in reverse order
+    // they were added. This works similar to how destructors are
+    // called on the stack in reverse order to get constructed.
+    while (!functions.empty()) {
       // See comment above for why we use 't' instead of 't_'.
-      f(t);
+      functions.back()(t);
+      functions.pop_back();
     }
   }
 
