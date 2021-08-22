@@ -16,7 +16,7 @@ def repos(external = True, repo_mapping = {}):
         git_repository(
             name = "com_github_3rdparty_stout_notification",
             remote = "https://github.com/3rdparty/stout-notification",
-            commit = "",
-            shallow_since = " +0200",
+            commit = "73debaa137aa3932fc64881dc6183e64e822f737",
+            shallow_since = "1629613922 +0200",
             repo_mapping = repo_mapping,
         )
