@@ -6,23 +6,26 @@
 #include <mutex>
 #include <vector>
 
+////////////////////////////////////////////////////////////////////////
+
 namespace stout {
 
-template <typename T>
-class Notification
-{
-public:
-  Notification() : notified_(false) {}
+////////////////////////////////////////////////////////////////////////
 
-  void Notify(T t)
-  {
+template <typename T>
+class Notification {
+ public:
+  Notification()
+    : notified_(false) {}
+
+  void Notify(T t) {
     // Need to move functions to local so that we can invoke
     // them outside of mutex in the event that invoking them
     // deletes this instance and thus the mutex.
     std::vector<std::function<void(T)>> functions;
 
     mutex_.lock();
-    
+
     // Copy 't' rather than 'std::move' so that we can use 't' when
     // invoking the functions in case one of the callbacks deletes
     // this instance.
@@ -46,8 +49,7 @@ public:
     }
   }
 
-  void Watch(std::function<void(T)>&& f)
-  {
+  void Watch(std::function<void(T)>&& f) {
     if (notified_.load(std::memory_order_acquire)) {
       f(t_);
     } else {
@@ -62,8 +64,7 @@ public:
     }
   }
 
-  T Wait()
-  {
+  T Wait() {
     if (!notified_.load(std::memory_order_acquire)) {
       std::unique_lock<std::mutex> lock(mutex_);
       while (!notified_.load(std::memory_order_acquire)) {
@@ -73,7 +74,7 @@ public:
     return t_;
   }
 
-private:
+ private:
   std::mutex mutex_;
   std::condition_variable condition_;
   T t_;
@@ -82,4 +83,8 @@ private:
   std::vector<std::function<void(T)>> functions_;
 };
 
-} // namespace stout {
+////////////////////////////////////////////////////////////////////////
+
+} // namespace stout
+
+////////////////////////////////////////////////////////////////////////
