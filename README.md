@@ -1,3 +1,7 @@
+[![status: archive](https://github.com/GIScience/badges/raw/master/status/archive.svg)](https://github.com/GIScience/badges#archive) [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
+
+# DEPRECATED - migrated into [`3rdparty/stout`](https://github.com/3rdparty/stout).
+
 # `stout::Notification`
 
 Provides a simple mechanism to receive notifications as callbacks. This is in contrast to something like [`absl::Notification`](https://abseil.io/docs/cpp/guides/synchronization#notification) that blocks the calling thread which isn't productve in asynchronous environments where the current thread shouldn't be blocked (or creating a new thread is unnecessarily expensive).
